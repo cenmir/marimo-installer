@@ -1,4 +1,6 @@
 .gitignore
-.vs\*
-old\*
-Assets\*
+.vs/*
+old/*
+Assets/*
+marimoInstaller.zip
+.gitignore
