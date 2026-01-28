@@ -69,16 +69,16 @@ function Install-LatestPythonWithUv {
     if ($uvExitCode -eq 0) {
         Write-Host "Successfully installed Python using uv." -ForegroundColor Green
 
-        # Verify Python is now available
-        $pythonCheckPath = (Get-Command python -ErrorAction SilentlyContinue).Path
-        if ($pythonCheckPath) {
-            Write-Host "Verified: Python is now callable at: $pythonCheckPath" -ForegroundColor Green
-            $pythonVersion = & python --version 2>&1
+        # Use uv python find to get the actual Python path (avoids Windows Store stub)
+        $pythonPath = (uv python find 2>$null)
+        if ($pythonPath -and (Test-Path $pythonPath)) {
+            Write-Host "Python installed at: $pythonPath" -ForegroundColor Green
+            $pythonVersion = & $pythonPath --version
             Write-Host "Python version: $pythonVersion" -ForegroundColor Green
             return $true
         } else {
-            Write-Warning "Python was installed but 'python' command not found in PATH. You may need to restart PowerShell."
-            return $true  # Installation succeeded, just PATH issue
+            Write-Warning "Python was installed but could not be located. You may need to restart PowerShell."
+            return $true  # Installation succeeded
         }
     } else {
         Write-Error "Failed to install Python using uv. Exit code: $uvExitCode"
