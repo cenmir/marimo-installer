@@ -32,13 +32,16 @@ Write-Host "January 2026"
 Write-Host ""
 Write-Host "This will install the following (if not already installed):"                             -ForegroundColor Cyan
 Write-Host " 1. Git"                                                                                 -ForegroundColor Cyan
-Write-Host " 2. VS Code"                                                                             -ForegroundColor Cyan
+Write-Host " 2. VS Code with Python and Jupyter extensions"                                          -ForegroundColor Cyan
 Write-Host " 3. uv and python"                                                                       -ForegroundColor Cyan
 Write-Host " 4. Create a virtual environment in %USERPROFILE%\.venvs\default"                        -ForegroundColor Cyan
-Write-Host " 5. Copy Marimo files to %USERPROFILE%\marimo"                                           -ForegroundColor Cyan
-Write-Host " 6. Create Start Menu folder and shortcuts"                                              -ForegroundColor Cyan
-Write-Host " 7. Add context menu entries for Marimo and VS Code"                                     -ForegroundColor Cyan
-Write-Host " 8. Add the marimo install folder to your user PATH"                                     -ForegroundColor Cyan
+Write-Host " 5. Install packages (numpy, scipy, matplotlib, marimo, ipykernel, etc.)"                -ForegroundColor Cyan
+Write-Host " 6. Copy Marimo files to %USERPROFILE%\marimo"                                           -ForegroundColor Cyan
+Write-Host " 7. Create Start Menu folder and shortcuts"                                              -ForegroundColor Cyan
+Write-Host " 8. Add context menu entries for Marimo and VS Code"                                     -ForegroundColor Cyan
+Write-Host " 9. Add the marimo install folder to your user PATH"                                     -ForegroundColor Cyan
+Write-Host "10. Configure Marimo dark mode"                                                          -ForegroundColor Cyan
+Write-Host "11. Enable classic context menu (Windows 11)"                                            -ForegroundColor Cyan
 
 
 Read-Host "Press Enter to continue or Ctrl+C to cancel..."
@@ -119,5 +122,30 @@ Write-Host "Adding Marimo to your user PATH..."
 Push-Location -Path $InstallDir
 . ".\activate.ps1" "install"
 Pop-Location
+
+# Configure Marimo to use dark mode by default
+Write-Host "Configuring Marimo dark mode..."
+$marimoConfigPath = Join-Path $env:USERPROFILE ".marimo.toml"
+if (-not (Test-Path $marimoConfigPath)) {
+    @"
+[display]
+theme = "dark"
+"@ | Set-Content $marimoConfigPath -Encoding UTF8
+    Write-Host "Marimo configured to use dark mode." -ForegroundColor Green
+} else {
+    Write-Host "Marimo config already exists, skipping dark mode setup." -ForegroundColor Yellow
+}
+
+# Enable Windows 11 classic context menu (removes "Show more options")
+Write-Host "Enabling classic context menu (Windows 11)..."
+$classicMenuKey = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+try {
+    New-Item -Path $classicMenuKey -Force | Out-Null
+    Set-ItemProperty -Path $classicMenuKey -Name "(Default)" -Value ""
+    Write-Host "Classic context menu enabled. Sign out and back in to apply." -ForegroundColor Green
+}
+catch {
+    Write-Warning "Could not enable classic context menu: $($_.Exception.Message)"
+}
 
 Write-Host "Setup complete."

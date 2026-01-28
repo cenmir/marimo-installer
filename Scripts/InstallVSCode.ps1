@@ -82,6 +82,79 @@ function Show-ManualVSCodeInstallInstructions {
     Write-Host "=" * 60 -ForegroundColor Yellow
 }
 
+function Install-VSCodeExtensions {
+    Write-Host "Installing VS Code extensions..." -ForegroundColor Cyan
+
+    $extensions = @(
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+    )
+
+    # Check if 'code' command is available
+    $codePath = (Get-Command code -ErrorAction SilentlyContinue).Path
+    if (-not $codePath) {
+        Write-Warning "VS Code 'code' command not found in PATH. Extensions not installed."
+        Write-Host "You may need to restart your terminal and run the installer again." -ForegroundColor Yellow
+        return $false
+    }
+
+    foreach ($ext in $extensions) {
+        Write-Host "  Installing $ext..." -ForegroundColor Gray
+        code --install-extension $ext --force 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  Installed $ext" -ForegroundColor Green
+        } else {
+            Write-Warning "  Failed to install $ext"
+        }
+    }
+
+    Write-Host "VS Code extensions installation complete." -ForegroundColor Green
+    return $true
+}
+
+function Set-VSCodePythonSettings {
+    Write-Host "Configuring VS Code Python settings..." -ForegroundColor Cyan
+
+    $settingsPath = Join-Path $env:APPDATA "Code\User\settings.json"
+    $settingsDir = Split-Path $settingsPath -Parent
+
+    # Ensure the directory exists
+    if (-not (Test-Path $settingsDir)) {
+        New-Item -Path $settingsDir -ItemType Directory -Force | Out-Null
+    }
+
+    # Read existing settings or create empty object
+    $settings = @{}
+    if (Test-Path $settingsPath) {
+        try {
+            $content = Get-Content $settingsPath -Raw
+            if ($content) {
+                $settings = $content | ConvertFrom-Json -AsHashtable
+            }
+        }
+        catch {
+            Write-Warning "Could not parse existing settings.json. Creating backup and starting fresh."
+            Copy-Item $settingsPath "$settingsPath.backup" -Force
+            $settings = @{}
+        }
+    }
+
+    # Set Python interpreter path using VS Code variable
+    $venvPythonPath = "`${userHome}\.venvs\default\Scripts\python.exe"
+    $settings["python.defaultInterpreterPath"] = $venvPythonPath
+
+    # Write settings back
+    try {
+        $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath -Encoding UTF8
+        Write-Host "VS Code configured to use default venv at ~/.venvs/default" -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Error "Failed to write VS Code settings: $($_.Exception.Message)"
+        return $false
+    }
+}
+
 function Add-VSCodeContextMenu {
     Write-Host "Adding 'Open with VS Code' to folder context menu..." -ForegroundColor Cyan
 
@@ -168,6 +241,12 @@ if ($vscodeInstalled) {
 
     # Add context menu entry
     Add-VSCodeContextMenu
+
+    # Install extensions (Python, Jupyter)
+    Install-VSCodeExtensions
+
+    # Configure Python settings
+    Set-VSCodePythonSettings
 } else {
     Write-Host ""
     Write-Host "VS Code installation was not completed. Please install manually and re-run the installer." -ForegroundColor Red

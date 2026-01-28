@@ -7,3 +7,4 @@ imageio
 pyqt6
 pyqtgraph
 pandas
+ipykernel
