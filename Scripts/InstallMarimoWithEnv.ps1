@@ -1,4 +1,4 @@
-# Main installation script for Marimo Desktop
+# Mechanical Engineering Python Development Setup
 
 # --- Set Execution Policy for Current User ---
 # This allows PowerShell scripts to run without being blocked
@@ -24,11 +24,11 @@ $MarimoStartMenuFolder = Join-Path $StartMenuPath "Marimo"
 #}
 
 Write-Host "--------------------------------------------------------" -ForegroundColor Cyan
-Write-Host "Marimo environment installer"                             -ForegroundColor Cyan
+Write-Host "Mechanical Engineering Python Development Setup"         -ForegroundColor Cyan
 Write-Host "--------------------------------------------------------" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "By Mirza Cenanovic, supported by Gemini"          -ForegroundColor Cyan
-Write-Host "September 2025"
+Write-Host "By Mirza Cenanovic"                                      -ForegroundColor Cyan
+Write-Host "January 2026"
 Write-Host ""
 Write-Host "This will install the following (if not already installed):"                             -ForegroundColor Cyan
 Write-Host " 1. Git"                                                                                 -ForegroundColor Cyan

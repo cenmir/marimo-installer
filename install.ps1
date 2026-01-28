@@ -1,17 +1,17 @@
-# Marimo Installer - One-liner bootstrap script
-# Usage: irm https://raw.githubusercontent.com/cenmir/marimo-installer/main/install.ps1 | iex
+# Mechanical Engineering Python Development Setup - One-liner bootstrap script
+# Usage: irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
 # Force TLS 1.2 (required by GitHub, not default on older PowerShell)
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$repoUrl = "https://github.com/cenmir/marimo-installer/archive/refs/heads/main.zip"
-$tempDir = Join-Path $env:TEMP "marimo-installer-$(Get-Random)"
-$zipPath = Join-Path $tempDir "marimo-installer.zip"
+$repoUrl = "https://github.com/cenmir/python-dev-installer/archive/refs/heads/main.zip"
+$tempDir = Join-Path $env:TEMP "python-dev-installer-$(Get-Random)"
+$zipPath = Join-Path $tempDir "python-dev-installer.zip"
 
 try {
-    Write-Host "Downloading Marimo installer..." -ForegroundColor Cyan
+    Write-Host "Downloading installer..." -ForegroundColor Cyan
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
     # Disable progress bar for faster download
@@ -26,7 +26,7 @@ try {
     Write-Host "Extracting..." -ForegroundColor Cyan
     Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
 
-    $extractedDir = Join-Path $tempDir "marimo-installer-main"
+    $extractedDir = Join-Path $tempDir "python-dev-installer-main"
     $installScript = Join-Path $extractedDir "Scripts\InstallMarimoWithEnv.ps1"
 
     if (-not (Test-Path $installScript)) {
@@ -46,7 +46,7 @@ catch {
     Write-Host "Installation failed: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host ""
     Write-Host "If the problem persists, try the manual installation:" -ForegroundColor Yellow
-    Write-Host "  1. Download: https://github.com/cenmir/marimo-installer/archive/refs/heads/main.zip"
+    Write-Host "  1. Download: https://github.com/cenmir/python-dev-installer/archive/refs/heads/main.zip"
     Write-Host "  2. Extract and run setup.bat"
     throw
 }

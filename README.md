@@ -1,6 +1,6 @@
-# Marimo JTH installer
+# Mechanical Engineering Python Development Setup
 
-This repository contains installation files for installing the Marimo editor used in courses at JTH (School of Engineering, Jönköping University). These installation files will help you set up the Marimo editor on either the JTH computer lab machines or your personal computer running windows.
+This repository contains installation files for setting up a Python development environment for Mechanical Engineering courses at JTH (School of Engineering, Jönköping University). It installs Git, VS Code, Python, and the Marimo notebook editor on Windows.
 
 For Mac or Linux users, please refer to the [Marimo installation guide for Mac/Linux](https://python.ju.se/python_installation.html#manual-python-installation).
 
@@ -23,7 +23,7 @@ The installer will:
 
 Open PowerShell and run:
 ```powershell
-irm https://raw.githubusercontent.com/cenmir/marimo-installer/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
 ```
 
 ### Option 2: Manual download

@@ -1,5 +1,5 @@
 @echo off
-echo Starting Marimo Desktop installation...
+echo Starting Python Development Environment installation...
 echo.
 
 set "SCRIPT_DIR=%~dp0"

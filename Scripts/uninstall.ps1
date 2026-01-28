@@ -1,5 +1,5 @@
-# Uninstaller for Marimo Desktop
-Write-Host "Starting Marimo Desktop uninstallation..."
+# Uninstaller for Python Development Environment
+Write-Host "Starting Python Development Environment uninstallation..."
 
 # --- Define Paths ---
 $InstallDir = "$env:USERPROFILE\marimo"
@@ -53,5 +53,5 @@ $BatchContent | Out-File -FilePath $TempBatchFile -Encoding ascii
 # Launch the batch file in a new, hidden window and exit this script immediately.
 Start-Process cmd.exe -ArgumentList "/c `"$TempBatchFile`"" -WindowStyle Hidden
 
-Write-Host "Marimo Desktop uninstallation is complete."
+Write-Host "Python Development Environment uninstallation is complete."
 # The final Read-Host is removed so this script can exit and unlock the directory.
