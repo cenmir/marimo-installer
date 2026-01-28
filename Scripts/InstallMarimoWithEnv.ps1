@@ -5,8 +5,14 @@
 $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
 if ($currentPolicy -ne 'Bypass' -and $currentPolicy -ne 'Unrestricted') {
     Write-Host "Setting PowerShell execution policy to Bypass for current user..." -ForegroundColor Yellow
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser -Force
-    Write-Host "Execution policy updated. Scripts will now run without issues." -ForegroundColor Green
+    try {
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser -Force -ErrorAction Stop
+        Write-Host "Execution policy updated." -ForegroundColor Green
+    }
+    catch {
+        # This can fail if a Group Policy overrides user settings - that's OK, continue anyway
+        Write-Host "Could not change execution policy (may be controlled by Group Policy). Continuing..." -ForegroundColor Yellow
+    }
 }
 
 # --- Define Paths ---
