@@ -61,37 +61,27 @@ function Test-AndInstallUv {
 function Install-LatestPythonWithUv {
     Write-Host "Attempting to install the latest Python version using uv..." -ForegroundColor Cyan
 
-    try {
-        Write-Host "Running: uv python install --default --preview"
-        # This command installs the latest Python and creates shims in ~/.local/bin
-        $installResult = (uv python install --default --preview 2>&1)
+    Write-Host "Running: uv python install --default --preview"
+    # Run uv and capture exit code (don't use 2>&1 as it creates ErrorRecords that throw with $ErrorActionPreference=Stop)
+    uv python install --default --preview
+    $uvExitCode = $LASTEXITCODE
 
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "Successfully installed the latest Python version using uv." -ForegroundColor Green
-            Write-Host "Installation output:"
-            $installResult | ForEach-Object { Write-Host $_ }
+    if ($uvExitCode -eq 0) {
+        Write-Host "Successfully installed Python using uv." -ForegroundColor Green
 
-            # Verify Python is now available
-            # uv python install --default usually puts shims in ~/.local/bin,
-            # which should already be in our session's PATH from the uv install step.
-            $pythonCheckPath = (Get-Command python -ErrorAction SilentlyContinue).Path
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "Verified: Python is now callable with: $pythonCheckPath" -ForegroundColor Green
-                Write-Host "Python version: $(python --version)" -ForegroundColor Green
-                return $true
-            } else {
-                Write-Warning "Python installation via uv seemed successful, but 'python' command failed. You might need to verify PATH additions or restart PowerShell."
-                $installResult | ForEach-Object { Write-Host $_ } # Show uv's output again for context
-                return $false
-            }
+        # Verify Python is now available
+        $pythonCheckPath = (Get-Command python -ErrorAction SilentlyContinue).Path
+        if ($pythonCheckPath) {
+            Write-Host "Verified: Python is now callable at: $pythonCheckPath" -ForegroundColor Green
+            $pythonVersion = & python --version 2>&1
+            Write-Host "Python version: $pythonVersion" -ForegroundColor Green
+            return $true
         } else {
-            Write-Error "Failed to install Python using uv. Error:"
-            $installResult | ForEach-Object { Write-Error $_ }
-            return $false
+            Write-Warning "Python was installed but 'python' command not found in PATH. You may need to restart PowerShell."
+            return $true  # Installation succeeded, just PATH issue
         }
-    }
-    catch {
-        Write-Error "An error occurred while installing Python with uv: $($_.Exception.Message)"
+    } else {
+        Write-Error "Failed to install Python using uv. Exit code: $uvExitCode"
         return $false
     }
 }
