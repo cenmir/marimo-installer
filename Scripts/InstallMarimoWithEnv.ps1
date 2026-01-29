@@ -93,6 +93,21 @@ $Shortcut.IconLocation = "$InstallDir\mo.ico"
 $Shortcut.Description = "Launch Marimo"
 $Shortcut.Save()
 
+# Marimo New Notebook Shortcut (creates a new file with random name)
+$Shortcut = $WshShell.CreateShortcut("$MarimoStartMenuFolder\Marimo New Notebook.lnk")
+$Shortcut.TargetPath = "powershell.exe"
+$Shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$InstallDir\runMarimoTemp.ps1`""
+$Shortcut.IconLocation = "$InstallDir\mo.ico"
+$Shortcut.Description = "Launch Marimo with a new notebook"
+$Shortcut.Save()
+
+# Update Marimo Shortcut
+$Shortcut = $WshShell.CreateShortcut("$MarimoStartMenuFolder\Update Marimo.lnk")
+$Shortcut.TargetPath = "powershell.exe"
+$Shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$InstallDir\updateScripts.ps1`""
+$Shortcut.IconLocation = "$InstallDir\mo.ico"
+$Shortcut.Description = "Update Marimo scripts to the latest version"
+$Shortcut.Save()
 
 # Uninstall Shortcut
 $Shortcut = $WshShell.CreateShortcut("$MarimoStartMenuFolder\Uninstall Marimo.lnk")

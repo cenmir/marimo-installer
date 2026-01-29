@@ -3,6 +3,10 @@
 # This script is designed to be called from a Windows right-click context menu
 # to open a Python file with Marimo in the same PowerShell window.
 
+# --- Check for Updates ---
+. "$PSScriptRoot\checkUpdate.ps1"
+Test-MarimoUpdate -ScriptDir $PSScriptRoot
+
 # --- Configuration ---
 # Define the path to your default virtual environment.
 # IMPORTANT: Make sure this path is correct for your system.
