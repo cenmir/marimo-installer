@@ -41,7 +41,7 @@ function Install-VSCodeWithWinget {
     Write-Host "Installing VS Code using winget..." -ForegroundColor Cyan
 
     try {
-        winget install Microsoft.VisualStudioCode --silent --accept-source-agreements --accept-package-agreements
+        winget install Microsoft.VisualStudioCode --accept-source-agreements --accept-package-agreements
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host "VS Code installed successfully via winget." -ForegroundColor Green

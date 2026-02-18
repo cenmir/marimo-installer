@@ -26,7 +26,7 @@ function Install-QuartoWithWinget {
     Write-Host "Installing Quarto using winget..." -ForegroundColor Cyan
 
     try {
-        winget install Posit.Quarto --silent --accept-source-agreements --accept-package-agreements
+        winget install Posit.Quarto --accept-source-agreements --accept-package-agreements
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Quarto installed successfully via winget." -ForegroundColor Green

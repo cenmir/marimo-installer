@@ -27,7 +27,7 @@ function Install-GitWithWinget {
     Write-Host "Installing Git using winget..." -ForegroundColor Cyan
 
     try {
-        winget install Git.Git --silent --accept-source-agreements --accept-package-agreements
+        winget install Git.Git --accept-source-agreements --accept-package-agreements
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Git installed successfully via winget." -ForegroundColor Green
