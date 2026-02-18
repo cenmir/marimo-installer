@@ -4,6 +4,27 @@ This repository contains installation files for setting up a Python development 
 
 For Mac or Linux users, please refer to the [Marimo installation guide for Mac/Linux](https://python.ju.se/python_installation.html#manual-python-installation).
 
+## Quick Install
+
+Open **PowerShell** and paste:
+
+```powershell
+irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
+```
+
+> **Execution policy error?** If PowerShell blocks the script, run this first to allow scripts for the current user:
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+> ```
+
+---
+
+## Alternative: Manual download
+
+1. Download the repo as a ZIP file and extract it
+2. Run `setup.bat` by double-clicking it
+3. Follow the on-screen instructions
+
 ## What the installer does
 
 ### Software Installation
@@ -19,7 +40,7 @@ For Mac or Linux users, please refer to the [Marimo installation guide for Mac/L
 
 ### Python Environment
 - Creates virtual environment at `C:\Users\username\.venvs\default`
-- Installs packages: numpy, sympy, scipy, matplotlib, marimo, imageio, pyqt6, pyqtgraph, pandas, ipykernel
+- Installs packages: numpy, sympy, scipy, matplotlib, marimo, imageio, pyqt6, pyqtgraph, pandas, ipykernel, MechanicsKit
 - Packages are configurable via `requirements.txt`
 
 ### Marimo Setup
@@ -32,21 +53,6 @@ For Mac or Linux users, please refer to the [Marimo installation guide for Mac/L
 ### Windows Configuration
 - Adds "Open with VS Code" context menu
 - Enables classic context menu (removes Windows 11 "Show more options")
-
-## Installation
-
-### Option 1: One-liner (recommended)
-
-Open PowerShell and run:
-```powershell
-irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
-```
-
-### Option 2: Manual download
-
-1. Download the repo as a ZIP file and extract it
-2. Run `setup.bat` by double-clicking it
-3. Follow the on-screen instructions
 
 ## Usage
 
