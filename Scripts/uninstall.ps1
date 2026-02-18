@@ -32,6 +32,18 @@ if (Test-Path $VenvDir) {
     Remove-Item -Path $VenvDir -Recurse -Force
 }
 
+# --- Remove marimo from user PATH ---
+Write-Host "Removing marimo from user PATH..."
+$CurrentUserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if ($CurrentUserPath) {
+    $pathEntries = $CurrentUserPath -split ";" | Where-Object {
+        $_ -ne $InstallDir -and $_ -ne "$InstallDir\"
+    }
+    $NewUserPath = ($pathEntries -join ";").TrimEnd(";")
+    [Environment]::SetEnvironmentVariable("Path", $NewUserPath, "User")
+    Write-Host "Removed '$InstallDir' from user PATH." -ForegroundColor Green
+}
+
 # --- Final Step: Self-destruct the installation directory ---
 # We can't delete the directory we are running from.
 # So, we create a temporary batch file in %TEMP% to do it after this script exits.

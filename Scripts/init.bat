@@ -37,7 +37,7 @@ if %errorlevel% neq 0 (
 )
 
 echo 'uv' has been installed. Adding it to the PATH for this session...
-set "PATH=%USERPROFILE%\.uv\bin;%PATH%"
+set "PATH=%USERPROFILE%\.local\bin;%PATH%"
 
 rem Verify uv installation
 uv --version >nul 2>&1
@@ -70,7 +70,7 @@ if %errorlevel% neq 0 (
 echo Virtual environment created in '.\.venv'.
 
 rem Define packages to be installed
-set "packages=numpy sympy scipy matplotlib marimo imageio pandas pyqt6 pyqtgraph"
+set "packages=numpy sympy scipy matplotlib marimo imageio pandas pyqt6 pyqtgraph ipykernel MechanicsKit"
 
 echo Installing packages: %packages%
 call .\.venv\Scripts\activate.bat

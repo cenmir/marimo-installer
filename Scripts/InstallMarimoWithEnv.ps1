@@ -34,20 +34,21 @@ Write-Host "Mechanical Engineering Python Development Setup"         -Foreground
 Write-Host "--------------------------------------------------------" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "By Mirza Cenanovic"                                      -ForegroundColor Cyan
-Write-Host "January 2026"
+Write-Host "February 2026"
 Write-Host ""
 Write-Host "This will install the following (if not already installed):"                             -ForegroundColor Cyan
 Write-Host " 1. Git"                                                                                 -ForegroundColor Cyan
 Write-Host " 2. VS Code with Python and Jupyter extensions"                                          -ForegroundColor Cyan
-Write-Host " 3. uv and python"                                                                       -ForegroundColor Cyan
-Write-Host " 4. Create a virtual environment in %USERPROFILE%\.venvs\default"                        -ForegroundColor Cyan
-Write-Host " 5. Install packages (numpy, scipy, matplotlib, marimo, ipykernel, etc.)"                -ForegroundColor Cyan
-Write-Host " 6. Copy Marimo files to %USERPROFILE%\marimo"                                           -ForegroundColor Cyan
-Write-Host " 7. Create Start Menu folder and shortcuts"                                              -ForegroundColor Cyan
-Write-Host " 8. Add context menu entries for Marimo and VS Code"                                     -ForegroundColor Cyan
-Write-Host " 9. Add the marimo install folder to your user PATH"                                     -ForegroundColor Cyan
-Write-Host "10. Configure Marimo dark mode"                                                          -ForegroundColor Cyan
-Write-Host "11. Enable classic context menu (Windows 11)"                                            -ForegroundColor Cyan
+Write-Host " 3. Quarto (scientific publishing)"                                                      -ForegroundColor Cyan
+Write-Host " 4. uv and python"                                                                       -ForegroundColor Cyan
+Write-Host " 5. Create a virtual environment in %USERPROFILE%\.venvs\default"                        -ForegroundColor Cyan
+Write-Host " 6. Install packages (numpy, scipy, matplotlib, marimo, ipykernel, etc.)"                -ForegroundColor Cyan
+Write-Host " 7. Copy Marimo files to %USERPROFILE%\marimo"                                           -ForegroundColor Cyan
+Write-Host " 8. Create Start Menu folder and shortcuts"                                              -ForegroundColor Cyan
+Write-Host " 9. Add context menu entries for Marimo and VS Code"                                     -ForegroundColor Cyan
+Write-Host "10. Add the marimo install folder to your user PATH"                                     -ForegroundColor Cyan
+Write-Host "11. Configure Marimo dark mode"                                                          -ForegroundColor Cyan
+Write-Host "12. Enable classic context menu (Windows 11)"                                            -ForegroundColor Cyan
 
 
 Read-Host "Press Enter to continue or Ctrl+C to cancel..."
@@ -60,16 +61,20 @@ Write-Host "Installing Git..."
 Write-Host "Installing VS Code..."
 & "$SourceDir\InstallVSCode.ps1"
 
-# 3. Install uv and Python
+# 3. Install Quarto
+Write-Host "Installing Quarto..."
+& "$SourceDir\InstallQuarto.ps1"
+
+# 4. Install uv and Python
 Write-Host "Installing Python..."
 & "$SourceDir\InstallPython.ps1"
 
-# 4. Create default venv and install packages
+# 5. Create default venv and install packages
 Write-Host "Creating virtual environment and installing packages..."
 & "$SourceDir\createDefaultVenvAndInstallPackages.ps1"
 
 Write-Host "Setting up installation directory and shortcuts..."
-# 5. Create installation directory and copy files
+# 6. Create installation directory and copy files
 if (-not (Test-Path $InstallDir)) {
     New-Item -Path $InstallDir -ItemType Directory | Out-Null
 }
@@ -77,12 +82,12 @@ Get-ChildItem -Path $SourceDir | ForEach-Object {
     Copy-Item -Path $_.FullName -Destination $InstallDir -Force
 }
 
-# 6. Create Start Menu folder
+# 7. Create Start Menu folder
 if (-not (Test-Path $MarimoStartMenuFolder)) {
     New-Item -Path $MarimoStartMenuFolder -ItemType Directory | Out-Null
 }
 
-# 7. Create Shortcuts using WScript.Shell COM object
+# 8. Create Shortcuts using WScript.Shell COM object
 $WshShell = New-Object -ComObject WScript.Shell
 
 # Marimo Launcher Shortcut
