@@ -8,4 +8,4 @@ pyqt6
 pyqtgraph
 pandas
 ipykernel
-MechanicsKit
+MechanicsKit @ git+https://github.com/cenmir/MechanicsKit.git

@@ -70,7 +70,7 @@ if %errorlevel% neq 0 (
 echo Virtual environment created in '.\.venv'.
 
 rem Define packages to be installed
-set "packages=numpy sympy scipy matplotlib marimo imageio pandas pyqt6 pyqtgraph ipykernel MechanicsKit"
+set "packages=numpy sympy scipy matplotlib marimo imageio pandas pyqt6 pyqtgraph ipykernel MechanicsKit@git+https://github.com/cenmir/MechanicsKit.git"
 
 echo Installing packages: %packages%
 call .\.venv\Scripts\activate.bat
