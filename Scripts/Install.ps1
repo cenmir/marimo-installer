@@ -22,39 +22,147 @@ $StartMenuPath = [System.Environment]::GetFolderPath('Programs')
 $MarimoStartMenuFolder = Join-Path $StartMenuPath "Marimo"
 
 # --- Interactive Selection Menu ---
+# Supports one expandable sub-menu (Right arrow to expand, Left to collapse).
 function Show-InstallMenu {
     param(
-        [string[]]$MenuItems
+        [string[]]$MenuItems,
+        [int]$ExpandableIndex = -1,
+        [string[]]$SubItems = @()
     )
 
     $selected = [bool[]](@($true) * $MenuItems.Count)
+    $subSelected = [bool[]](@($true) * $SubItems.Count)
+    $isExpanded = $false
     $pos = 0
+    $hasSubmenu = ($ExpandableIndex -ge 0 -and $SubItems.Count -gt 0)
+    $maxLines = $MenuItems.Count + $(if ($hasSubmenu) { $SubItems.Count } else { 0 })
 
     [Console]::CursorVisible = $false
     $startPos = $Host.UI.RawUI.CursorPosition
 
     while ($true) {
+        # Total visible items
+        $totalVisible = $MenuItems.Count
+        if ($isExpanded) { $totalVisible += $SubItems.Count }
+
+        # Map flat cursor position to item type and index
+        $itemType = 'main'
+        $itemIndex = $pos
+        if ($isExpanded -and $hasSubmenu) {
+            if ($pos -le $ExpandableIndex) {
+                $itemType = 'main'; $itemIndex = $pos
+            } elseif ($pos -lt $ExpandableIndex + 1 + $SubItems.Count) {
+                $itemType = 'sub'; $itemIndex = $pos - $ExpandableIndex - 1
+            } else {
+                $itemType = 'main'; $itemIndex = $pos - $SubItems.Count
+            }
+        }
+
+        # Parent checkbox reflects sub-item state
+        if ($hasSubmenu) {
+            $anySubOn = $false
+            for ($s = 0; $s -lt $subSelected.Count; $s++) {
+                if ($subSelected[$s]) { $anySubOn = $true; break }
+            }
+            $selected[$ExpandableIndex] = $anySubOn
+        }
+
+        # Render
         $Host.UI.RawUI.CursorPosition = $startPos
+        $flatIdx = 0
+
         for ($i = 0; $i -lt $MenuItems.Count; $i++) {
+            $isCurrent = ($flatIdx -eq $pos)
             $check = if ($selected[$i]) { "X" } else { " " }
-            $prefix = if ($i -eq $pos) { ">" } else { " " }
-            $color = if ($i -eq $pos) { "Yellow" } else { "Cyan" }
-            $text = " $prefix [$check] $($MenuItems[$i])"
+            $prefix = if ($isCurrent) { ">" } else { " " }
+            $color = if ($isCurrent) { "Yellow" } else { "Cyan" }
+
+            $label = $MenuItems[$i]
+            if ($hasSubmenu -and $i -eq $ExpandableIndex) {
+                $arrow = if ($isExpanded) { "v" } else { ">" }
+                $label = ($label -replace ' >$', '') + " $arrow"
+            }
+
+            $text = " $prefix [$check] $label"
             $pad = ' ' * [Math]::Max(0, [Console]::WindowWidth - $text.Length - 1)
             Write-Host "$text$pad" -ForegroundColor $color
+            $flatIdx++
+
+            # Render sub-items when expanded
+            if ($hasSubmenu -and $i -eq $ExpandableIndex -and $isExpanded) {
+                for ($j = 0; $j -lt $SubItems.Count; $j++) {
+                    $isCurrent = ($flatIdx -eq $pos)
+                    $subCheck = if ($subSelected[$j]) { "X" } else { " " }
+                    $subPrefix = if ($isCurrent) { ">" } else { " " }
+                    $subColor = if ($isCurrent) { "Yellow" } else { "DarkCyan" }
+                    $subText = "     $subPrefix [$subCheck] $($SubItems[$j])"
+                    $subPad = ' ' * [Math]::Max(0, [Console]::WindowWidth - $subText.Length - 1)
+                    Write-Host "$subText$subPad" -ForegroundColor $subColor
+                    $flatIdx++
+                }
+            }
         }
+
+        # Clear leftover lines when collapsed
+        while ($flatIdx -lt $maxLines) {
+            Write-Host "$(' ' * ([Console]::WindowWidth - 1))"
+            $flatIdx++
+        }
+
         Write-Host ""
-        $help = "  Up/Down: navigate | Space: toggle | A: all | N: none | Enter: continue"
+        $help = "  Up/Down: navigate | Space: toggle | Left/Right: expand/collapse | A: all | N: none | Enter: continue"
         Write-Host "$help$(' ' * [Math]::Max(0, [Console]::WindowWidth - $help.Length - 1))" -ForegroundColor DarkGray
 
         $key = [Console]::ReadKey($true)
         switch ($key.Key) {
-            'UpArrow'   { $pos = if ($pos -gt 0) { $pos - 1 } else { $MenuItems.Count - 1 } }
-            'DownArrow' { $pos = if ($pos -lt $MenuItems.Count - 1) { $pos + 1 } else { 0 } }
-            'Spacebar'  { $selected[$pos] = -not $selected[$pos] }
-            'A'         { for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $true } }
-            'N'         { for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $false } }
-            'Enter'     { [Console]::CursorVisible = $true; Write-Host ""; return $selected }
+            'UpArrow' {
+                $pos = if ($pos -gt 0) { $pos - 1 } else { $totalVisible - 1 }
+            }
+            'DownArrow' {
+                $pos = if ($pos -lt $totalVisible - 1) { $pos + 1 } else { 0 }
+            }
+            'RightArrow' {
+                if ($hasSubmenu -and $itemType -eq 'main' -and $itemIndex -eq $ExpandableIndex -and -not $isExpanded) {
+                    $isExpanded = $true
+                    $pos++
+                }
+            }
+            'LeftArrow' {
+                if ($isExpanded) {
+                    $isExpanded = $false
+                    $pos = $ExpandableIndex
+                }
+            }
+            'Spacebar' {
+                if ($itemType -eq 'main') {
+                    if ($hasSubmenu -and $itemIndex -eq $ExpandableIndex) {
+                        # Toggle all sub-items
+                        $allOn = $true
+                        for ($s = 0; $s -lt $subSelected.Count; $s++) {
+                            if (-not $subSelected[$s]) { $allOn = $false; break }
+                        }
+                        $newVal = -not $allOn
+                        for ($s = 0; $s -lt $subSelected.Count; $s++) { $subSelected[$s] = $newVal }
+                    } else {
+                        $selected[$itemIndex] = -not $selected[$itemIndex]
+                    }
+                } elseif ($itemType -eq 'sub') {
+                    $subSelected[$itemIndex] = -not $subSelected[$itemIndex]
+                }
+            }
+            'A' {
+                for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $true }
+                for ($s = 0; $s -lt $subSelected.Count; $s++) { $subSelected[$s] = $true }
+            }
+            'N' {
+                for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $false }
+                for ($s = 0; $s -lt $subSelected.Count; $s++) { $subSelected[$s] = $false }
+            }
+            'Enter' {
+                [Console]::CursorVisible = $true
+                Write-Host ""
+                return @{ Selected = $selected; SubSelected = $subSelected }
+            }
         }
     }
 }
@@ -79,10 +187,19 @@ $menuItems = @(
     "Virtual environment and packages"
     "Marimo files, shortcuts and context menus"
     "Marimo dark mode"
+    "Windows configuration >"
+)
+
+$winSubItems = @(
+    "Install Windows Terminal"
+    "Show hidden files and folders"
+    "Show file extensions"
     "Classic context menu (Windows 11)"
 )
 
-$choices = Show-InstallMenu $menuItems
+$result = Show-InstallMenu $menuItems -ExpandableIndex 8 -SubItems $winSubItems
+$choices = $result.Selected
+$winChoices = $result.SubSelected
 
 # 1. Install Git
 if ($choices[0]) {
@@ -214,8 +331,44 @@ if ($choices[7]) {
     }
 }
 
-# 9. Enable classic context menu (Windows 11)
-if ($choices[8]) {
+# 9. Windows configuration
+# Windows Terminal
+if ($winChoices[0]) {
+    $wt = Get-Command wt.exe -ErrorAction SilentlyContinue
+    if ($wt) {
+        Write-Host "Windows Terminal is already installed." -ForegroundColor Green
+    } else {
+        Write-Host "Installing Windows Terminal..." -ForegroundColor Cyan
+        $winget = Get-Command winget -ErrorAction SilentlyContinue
+        if ($winget) {
+            winget install Microsoft.WindowsTerminal --accept-source-agreements --accept-package-agreements
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "Windows Terminal installed." -ForegroundColor Green
+            } else {
+                Write-Warning "Windows Terminal installation failed. You can install it manually from the Microsoft Store."
+            }
+        } else {
+            Write-Warning "winget not available. Install Windows Terminal manually from the Microsoft Store."
+        }
+    }
+}
+
+$explorerKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+
+# Show hidden files
+if ($winChoices[1]) {
+    Set-ItemProperty -Path $explorerKey -Name "Hidden" -Value 1
+    Write-Host "Hidden files and folders are now visible." -ForegroundColor Green
+}
+
+# Show file extensions
+if ($winChoices[2]) {
+    Set-ItemProperty -Path $explorerKey -Name "HideFileExt" -Value 0
+    Write-Host "File extensions are now visible." -ForegroundColor Green
+}
+
+# Classic context menu
+if ($winChoices[3]) {
     Write-Host "Enabling classic context menu (Windows 11)..."
     $classicMenuKey = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
     try {

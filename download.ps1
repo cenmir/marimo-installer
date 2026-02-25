@@ -1,5 +1,5 @@
 # Mechanical Engineering Python Development Setup - One-liner bootstrap script
-# Usage: irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
+# Usage: irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/download.ps1 | iex
 
 $ErrorActionPreference = "Stop"
 
@@ -27,7 +27,7 @@ try {
     Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
 
     $extractedDir = Join-Path $tempDir "python-dev-installer-main"
-    $installScript = Join-Path $extractedDir "Scripts\InstallMarimoWithEnv.ps1"
+    $installScript = Join-Path $extractedDir "Scripts\Install.ps1"
 
     if (-not (Test-Path $installScript)) {
         throw "Extraction failed - installer script not found at $installScript"

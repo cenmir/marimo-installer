@@ -1,6 +1,6 @@
 # Mechanical Engineering Python Development Setup
 
-This repository contains installation files for setting up a Python development environment for Mechanical Engineering courses at JTH (School of Engineering, Jönköping University). It installs Git, VS Code, Quarto, TinyTeX, Python, and the Marimo notebook editor on Windows. An interactive menu lets you select which components to install.
+This repository contains installation files for setting up a Python development environment for Mechanical Engineering courses at JTH (School of Engineering, Jonkoping University). It installs Git, VS Code, Quarto, TinyTeX, Python, and the Marimo notebook editor on Windows. An interactive menu lets you select which components to install.
 
 For Mac or Linux users, please refer to the [Marimo installation guide for Mac/Linux](https://python.ju.se/python_installation.html#manual-python-installation).
 
@@ -9,7 +9,7 @@ For Mac or Linux users, please refer to the [Marimo installation guide for Mac/L
 Open **PowerShell** and paste:
 
 ```powershell
-irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/download.ps1 | iex
 ```
 
 > **Execution policy error?** If PowerShell blocks the script, run this first to allow scripts for the current user:
@@ -29,48 +29,86 @@ irm https://raw.githubusercontent.com/cenmir/python-dev-installer/main/install.p
 
 ### Software Installation
 - **Git** - Version control (prompts for name/email configuration)
-- **VS Code** - Code editor with context menu integration
+- **VS Code** - Code editor with Python and Jupyter extensions, context menu integration
 - **Quarto** - Scientific and technical publishing
 - **TinyTeX** - LaTeX distribution for PDF rendering
-- **uv** - Fast Python package manager
-- **Python** - Latest version via uv
-
-### VS Code Configuration
-- Installs **Python extension** (ms-python.python)
-- Installs **Jupyter extension** (ms-toolsai.jupyter)
-- Sets default Python interpreter to `~/.venvs/default`
+- **uv + Python** - Fast package manager and Python 3.13
 
 ### Python Environment
-- Creates virtual environment at `C:\Users\username\.venvs\default`
-- Installs packages: numpy, sympy, scipy, matplotlib, marimo, imageio, pyqt6, pyqtgraph, pandas, ipykernel, MechanicsKit
-- Packages are configurable via `requirements.txt`
+- Creates virtual environment at `~\.venvs\default`
+- Installs packages: numpy, sympy, scipy, matplotlib, marimo, imageio, pyqt6, pyqtgraph, pandas, ipykernel, nbformat, nbclient, MechanicsKit
+- Packages are configurable via `Scripts/requirements.txt`
 
 ### Marimo Setup
-- Copies run scripts to `C:\Users\username\marimo`
-- Adds marimo folder to user PATH
-- Creates Start Menu shortcuts
-- Adds "Open with Marimo" context menu
+- Copies scripts to `~\marimo` and adds it to user PATH
+- Creates Start Menu shortcuts (Marimo, New Notebook, Update, Uninstall)
+- Adds "Open with Marimo" and "Open in Marimo" context menus
 - Configures dark mode by default (`~/.marimo.toml`)
 
-### Windows Configuration
-- Adds "Open with VS Code" context menu
-- Enables classic context menu (removes Windows 11 "Show more options")
+### Windows Configuration (submenu)
+- Install Windows Terminal (if not present)
+- Show hidden files and folders
+- Show file extensions
+- Enable classic context menu (removes Windows 11 "Show more options")
 
 ## Usage
 
-- **Launch Marimo**: Right-click in a folder and select "Open in Marimo", or use the Start Menu shortcut, or type `m` in the command line
-- **Open in VS Code**: Right-click on any folder and select "Open with VS Code"
-- **Update packages**: Double-click `update.bat` in `C:\Users\username\marimo`
-- **Uninstall**: Double-click `uninstall.bat` in `C:\Users\username\marimo`
-
-## Configuration Files
-
-| File | Location | Purpose |
-|------|----------|---------|
-| Marimo config | `~/.marimo.toml` | Theme and display settings |
-| VS Code settings | `%APPDATA%\Code\User\settings.json` | Python interpreter path |
-| Package list | `requirements.txt` | Packages to install in venv |
+- **Launch Marimo**: Right-click in a folder > "Open in Marimo", or Start Menu, or type `m` in the terminal
+- **Open in VS Code**: Right-click on any folder > "Open with VS Code"
+- **Update**: Double-click `update.bat` in `~\marimo`, or use the Start Menu shortcut
+- **Uninstall**: Double-click `uninstall.bat` in `~\marimo`, or use the Start Menu shortcut
 
 ## Project-specific Virtual Environments
 
-For VS Code users who want separate dependencies per project: copy `Scripts/init.bat` to your project folder and double-click it. This creates a `.venv` folder that VS Code will automatically detect and use.
+Copy `Scripts/init.bat` to your project folder and double-click it. This creates a local `.venv` that VS Code will automatically detect and use.
+
+## Repository Files
+
+### Root
+
+| File | Purpose |
+|------|---------|
+| `download.ps1` | One-liner bootstrap: downloads repo ZIP, extracts, runs `Scripts/Install.ps1` |
+| `setup.bat` | Manual install entry point: double-click after extracting the ZIP |
+| `README.md` | This file |
+
+### Scripts/ - Installers
+
+| File | Purpose |
+|------|---------|
+| `Install.ps1` | Main orchestrator: interactive menu, calls all installers, configures system |
+| `InstallGit.ps1` | Installs Git via winget, prompts for user.name/email |
+| `InstallVSCode.ps1` | Installs VS Code via winget, adds extensions and context menus |
+| `InstallQuarto.ps1` | Installs Quarto via winget |
+| `InstallTinyTeX.ps1` | Detects any LaTeX distro, installs TinyTeX if none found |
+| `InstallPython.ps1` | Installs uv and Python 3.13 |
+| `createDefaultVenvAndInstallPackages.ps1` | Creates `~\.venvs\default` and installs packages from `requirements.txt` |
+
+### Scripts/ - Runtime
+
+| File | Purpose |
+|------|---------|
+| `m.ps1` / `m.cmd` | Marimo launcher shortcut (type `m` in terminal) |
+| `runMarimo.ps1` | Opens Marimo in a given folder |
+| `runMarimoFile.ps1` | Opens a file in Marimo |
+| `runMarimoTemp.ps1` | Creates and opens a new Marimo notebook |
+| `activate.ps1` | Adds/removes `~\marimo` to user PATH |
+
+### Scripts/ - Maintenance
+
+| File | Purpose |
+|------|---------|
+| `update.ps1` / `update.bat` | Updates Python packages in the default venv |
+| `updateScripts.ps1` | Downloads latest scripts from GitHub |
+| `checkUpdate.ps1` | Checks if a newer version is available |
+| `uninstall.ps1` / `uninstall.bat` | Removes registry keys, shortcuts, venv, PATH entry, install dir |
+
+### Scripts/ - Configuration
+
+| File | Purpose |
+|------|---------|
+| `requirements.txt` | Python packages to install (single source of truth) |
+| `init.bat` | Project-specific venv creator (copy to project folder, double-click) |
+| `version.txt` | Current version tag (used by update checker) |
+| `config.json` | Installer configuration |
+| `mo.ico` | Marimo icon for shortcuts and context menus |

@@ -5,7 +5,7 @@ echo.
 set "SCRIPT_DIR=%~dp0"
 
 REM Run the main PowerShell installation script
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%Scripts\InstallMarimoWithEnv.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%Scripts\Install.ps1"
 
 REM Check if the previous command was successful
 if %ERRORLEVEL% neq 0 (
