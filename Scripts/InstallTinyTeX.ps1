@@ -19,22 +19,53 @@ function Refresh-PathEnvironment {
     $env:PATH = "$userPath;$machinePath"
 }
 
-function Install-TinyTeXFromWeb {
-    Write-Host "Downloading and installing TinyTeX..." -ForegroundColor Cyan
-    Write-Host "This may take a few minutes." -ForegroundColor Yellow
+function Install-TinyTeXFromGitHub {
+    Write-Host "Downloading TinyTeX from GitHub..." -ForegroundColor Cyan
+    Write-Host "This may take a few minutes (~120 MB)." -ForegroundColor Yellow
 
     try {
-        $installerUrl = "https://yihui.org/tinytex/install-bin-windows.ps1"
-        $tempScript = Join-Path $env:TEMP "install-tinytex.ps1"
+        # Get the latest release download URL for TinyTeX-1 (includes common LaTeX packages)
+        $releasesApi = "https://api.github.com/repos/rstudio/tinytex-releases/releases/latest"
+        $ProgressPreference = 'SilentlyContinue'
+        $release = Invoke-RestMethod -Uri $releasesApi -UseBasicParsing
+        $ProgressPreference = 'Continue'
 
-        Write-Host "Downloading installer from $installerUrl ..." -ForegroundColor Cyan
-        Invoke-WebRequest -Uri $installerUrl -OutFile $tempScript -UseBasicParsing
+        $asset = $release.assets | Where-Object { $_.name -match '^TinyTeX-1-.*\.zip$' } | Select-Object -First 1
+        if (-not $asset) {
+            Write-Error "Could not find TinyTeX-1 ZIP in the latest release."
+            return $false
+        }
 
-        Write-Host "Running TinyTeX installer..." -ForegroundColor Cyan
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $tempScript
+        $downloadUrl = $asset.browser_download_url
+        $zipPath = Join-Path $env:TEMP "TinyTeX-1.zip"
+        $installDir = "$env:APPDATA\TinyTeX"
 
-        # Clean up temp file
-        Remove-Item $tempScript -Force -ErrorAction SilentlyContinue
+        Write-Host "Downloading $($asset.name) ..." -ForegroundColor Cyan
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
+
+        Write-Host "Extracting to $installDir ..." -ForegroundColor Cyan
+        if (Test-Path $installDir) {
+            Remove-Item $installDir -Recurse -Force
+        }
+        Expand-Archive -Path $zipPath -DestinationPath $env:APPDATA -Force
+
+        # Clean up ZIP
+        Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+
+        # Add TinyTeX bin to user PATH
+        $binDir = "$installDir\bin\windows"
+        if (-not (Test-Path $binDir)) {
+            # Some releases use win32 instead of windows
+            $binDir = "$installDir\bin\win32"
+        }
+
+        if (Test-Path $binDir) {
+            $userPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+            if ($userPath -notlike "*$binDir*") {
+                [System.Environment]::SetEnvironmentVariable("PATH", "$userPath;$binDir", "User")
+                Write-Host "Added $binDir to user PATH." -ForegroundColor Green
+            }
+        }
 
         Refresh-PathEnvironment
 
@@ -59,9 +90,11 @@ function Show-ManualTinyTeXInstallInstructions {
     Write-Host ""
     Write-Host "Please install TinyTeX manually:"
     Write-Host ""
-    Write-Host "  1. Go to: https://yihui.org/tinytex/" -ForegroundColor Cyan
-    Write-Host "  2. Follow the Windows installation instructions"
-    Write-Host "  3. Restart this installer after TinyTeX is installed"
+    Write-Host "  1. Go to: https://github.com/rstudio/tinytex-releases/releases" -ForegroundColor Cyan
+    Write-Host "  2. Download TinyTeX-1-*.zip for Windows"
+    Write-Host "  3. Extract to %APPDATA%\TinyTeX"
+    Write-Host "  4. Add %APPDATA%\TinyTeX\bin\windows to your PATH"
+    Write-Host "  5. Restart this installer after TinyTeX is installed"
     Write-Host ""
     Write-Host "=" * 60 -ForegroundColor Yellow
 }
@@ -76,7 +109,7 @@ function Install-TinyTeX {
 
     Write-Host "No LaTeX distribution found. Attempting to install TinyTeX..." -ForegroundColor Yellow
 
-    $result = Install-TinyTeXFromWeb
+    $result = Install-TinyTeXFromGitHub
     if ($result) {
         return $true
     } else {
