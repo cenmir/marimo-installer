@@ -28,37 +28,34 @@ function Show-InstallMenu {
     )
 
     $selected = [bool[]](@($true) * $MenuItems.Count)
-    $cursor = 0
+    $pos = 0
 
     [Console]::CursorVisible = $false
-    $startLine = [Console]::CursorTop
-
-    function Redraw {
-        [Console]::SetCursorPosition(0, $startLine)
-        for ($i = 0; $i -lt $MenuItems.Count; $i++) {
-            $check = if ($selected[$i]) { "X" } else { " " }
-            $prefix = if ($i -eq $cursor) { ">" } else { " " }
-            $color = if ($i -eq $cursor) { "Yellow" } else { "Cyan" }
-            $line = " $prefix [$check] $($MenuItems[$i])"
-            Write-Host "$line$(' ' * ([Math]::Max(0, [Console]::WindowWidth - $line.Length - 1)))" -ForegroundColor $color
-        }
-        Write-Host ""
-        Write-Host "  Up/Down: navigate | Space: toggle | A: all | N: none | Enter: continue" -ForegroundColor DarkGray
-    }
-
-    Redraw
+    $startPos = $Host.UI.RawUI.CursorPosition
 
     while ($true) {
+        $Host.UI.RawUI.CursorPosition = $startPos
+        for ($i = 0; $i -lt $MenuItems.Count; $i++) {
+            $check = if ($selected[$i]) { "X" } else { " " }
+            $prefix = if ($i -eq $pos) { ">" } else { " " }
+            $color = if ($i -eq $pos) { "Yellow" } else { "Cyan" }
+            $text = " $prefix [$check] $($MenuItems[$i])"
+            $pad = ' ' * [Math]::Max(0, [Console]::WindowWidth - $text.Length - 1)
+            Write-Host "$text$pad" -ForegroundColor $color
+        }
+        Write-Host ""
+        $help = "  Up/Down: navigate | Space: toggle | A: all | N: none | Enter: continue"
+        Write-Host "$help$(' ' * [Math]::Max(0, [Console]::WindowWidth - $help.Length - 1))" -ForegroundColor DarkGray
+
         $key = [Console]::ReadKey($true)
         switch ($key.Key) {
-            'UpArrow'   { $cursor = if ($cursor -gt 0) { $cursor - 1 } else { $MenuItems.Count - 1 } }
-            'DownArrow' { $cursor = if ($cursor -lt $MenuItems.Count - 1) { $cursor + 1 } else { 0 } }
-            'Spacebar'  { $selected[$cursor] = -not $selected[$cursor] }
+            'UpArrow'   { $pos = if ($pos -gt 0) { $pos - 1 } else { $MenuItems.Count - 1 } }
+            'DownArrow' { $pos = if ($pos -lt $MenuItems.Count - 1) { $pos + 1 } else { 0 } }
+            'Spacebar'  { $selected[$pos] = -not $selected[$pos] }
             'A'         { for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $true } }
             'N'         { for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $false } }
             'Enter'     { [Console]::CursorVisible = $true; Write-Host ""; return $selected }
         }
-        Redraw
     }
 }
 
