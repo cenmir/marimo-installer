@@ -34,7 +34,9 @@ try {
     }
 
     Write-Host "Running installer..." -ForegroundColor Cyan
-    & $installScript
+    # Launch in a new process so the interactive menu gets a clean console
+    # (irm | iex runs in a piped context that breaks cursor positioning)
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installScript
 
     Write-Host ""
     Write-Host "Installation finished." -ForegroundColor Green
