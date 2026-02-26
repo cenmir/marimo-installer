@@ -179,17 +179,17 @@ Write-Host "Mechanical Engineering Python Development Setup"         -Foreground
 Write-Host "--------------------------------------------------------" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "By Mirza Cenanovic"                                      -ForegroundColor Cyan
-Write-Host "25 February 2026"
+Write-Host "26 February 2026"
 Write-Host ""
 Write-Host "Select components to install:"                           -ForegroundColor Cyan
 Write-Host ""
 
 $menuItems = @(
+    "FFmpeg (audio/video processing)"
     "Git"
     "VS Code with Python and Jupyter extensions"
     "Quarto (scientific publishing)"
     "TinyTeX (LaTeX for PDF rendering)"
-    "FFmpeg (audio/video processing)"
     "uv and Python"
     "Virtual environment and packages"
     "Marimo files, shortcuts and context menus"
@@ -208,34 +208,34 @@ $result = Show-InstallMenu $menuItems -ExpandableIndex 9 -SubItems $winSubItems
 $choices = $result.Selected
 $winChoices = $result.SubSelected
 
-# 1. Install Git
+# 1. Install FFmpeg
 if ($choices[0]) {
+    Write-Host "Installing FFmpeg..."
+    & "$SourceDir\InstallFFmpeg.ps1"
+}
+
+# 2. Install Git
+if ($choices[1]) {
     Write-Host "Installing Git..."
     & "$SourceDir\InstallGit.ps1"
 }
 
-# 2. Install VS Code
-if ($choices[1]) {
+# 3. Install VS Code
+if ($choices[2]) {
     Write-Host "Installing VS Code..."
     & "$SourceDir\InstallVSCode.ps1"
 }
 
-# 3. Install Quarto
-if ($choices[2]) {
+# 4. Install Quarto
+if ($choices[3]) {
     Write-Host "Installing Quarto..."
     & "$SourceDir\InstallQuarto.ps1"
 }
 
-# 4. Install TinyTeX
-if ($choices[3]) {
+# 5. Install TinyTeX
+if ($choices[4]) {
     Write-Host "Installing TinyTeX..."
     & "$SourceDir\InstallTinyTeX.ps1"
-}
-
-# 5. Install FFmpeg
-if ($choices[4]) {
-    Write-Host "Installing FFmpeg..."
-    & "$SourceDir\InstallFFmpeg.ps1"
 }
 
 # 6. Install uv and Python
