@@ -82,7 +82,7 @@ Copy `Scripts/init.bat` to your project folder and double-click it. This creates
 | `InstallVSCode.ps1` | Installs VS Code via winget, adds extensions and context menus |
 | `InstallQuarto.ps1` | Installs Quarto via winget |
 | `InstallTinyTeX.ps1` | Detects any LaTeX distro, installs TinyTeX if none found |
-| `InstallFFmpeg.ps1` | Installs FFmpeg via winget |
+| `InstallFFmpeg.ps1` | Downloads and installs FFmpeg from gyan.dev (GitHub fallback) |
 | `InstallPython.ps1` | Installs uv and Python 3.13 |
 | `createDefaultVenvAndInstallPackages.ps1` | Creates `~\.venvs\default` and installs packages from `requirements.txt` |
 
